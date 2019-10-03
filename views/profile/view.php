@@ -1,14 +1,35 @@
-<?php if (isset($_GET['editProfile'])) : ?>
-    <?php if ($_GET['editProfile'] == "success") : ?>
-        <h4 class="alert alert-dismissible alert-success">Your profile has been updated. </h4>
-    <?php endif; ?>
+<?php if ($params['status'] == "addFriend-success") : ?>
+    <h4 class="alert alert-dismissible alert-success">Friend request sent. </h4>
+<?php endif; ?>
+<?php if ($params['status'] == "removeFriend-success") : ?>
+    <h4 class="alert alert-dismissible alert-success">Removed from friends. </h4>
+<?php endif; ?>
+<?php if ($params['status'] == "withdrawFriendRequest-success") : ?>
+    <h4 class="alert alert-dismissible alert-success">Friend request withdrew. </h4>
+<?php endif; ?>
+<?php if ($params['status'] == "acceptFriendRequest-success") : ?>
+    <h4 class="alert alert-dismissible alert-success">Friend accepted. </h4>
+<?php endif; ?>
+<?php if ($params['status'] == "declineFriendRequest-success") : ?>
+    <h4 class="alert alert-dismissible alert-success">Friend request declined. </h4>
 <?php endif; ?>
 
 <div class="row">
     <div class="col-lg-6">
         <h3>Profile Info</h3>
         <hr class="my-4">
-        <?php if (isset($params["profile"])) : ?>
+        <?php if (isset($params["profileError"]) && $params['profileError'] !== null) :
+            $profileError = $params['profileError'];
+            if ($profileError !== null) :
+                $errorMessages = array(
+                    ProfileError::ProfileDoesNotExist => "Profile does not exist!",
+                );
+                ?>
+                <h4 class="alert alert-dismissible alert-danger">
+                    <?php echo $errorMessages[$profileError] . "<br>"; ?>
+                </h4>
+            <?php endif; ?>
+        <?php else : ?>
             <?php $profile = $params['profile']; ?>
             <div class="row">
                 <div class="col-lg-6">
@@ -23,55 +44,60 @@
                         <?php endif; ?>
                     </p>
                     <p><b>Gender: </b> <?php echo $profile->getGender(); ?></p>
-                    <?php if (!isset($_GET['profileId'])) : ?>
+
+                    <?php $myProfileId = $params['myProfileId']; ?>
+                    <?php if ($profile->getId() == $myProfileId) : ?>
                         <a href="/profile/edit" class="btn btn-secondary">Edit Profile</a>
-                    <?php endif; ?>
-
-                    <?php if (isset($params['state'])) : ?>
+                    <?php else : ?>
                         <?php $state = $params['state'] ?>
-
                         <?php if ($state == FriendshipState::NotFriends) : ?>
                             <form action="/friend/addFriend" method="POST">
                                 <input type="hidden" name="friendProfileId" value="<?php echo $profile->getId(); ?>" />
-                                <input type="submit" name="addFriend" value="ADD AS FRIEND" class="btn btn-success" />
+                                <button type="submit" name="addFriend" class="btn btn-success">ADD AS FRIEND</button>
                             </form>
                         <?php endif; ?>
                         <?php if ($state  == FriendshipState::Friends) : ?>
                             <p>You and <?php echo $profile->getFirstName(); ?> are friends</p>
                             <form action="/friend/removeFriend" method="POST">
                                 <input type="hidden" name="friendProfileId" value="<?php echo $profile->getId(); ?>" />
-                                <input type="submit" name="removeFriend" value="REMOVE FROM FRIENDS" class="btn btn-danger">
+                                <button type="submit" name="removeFriend" class="btn btn-danger">REMOVE FROM FRIENDS</button>
                             </form>
                         <?php endif; ?>
 
                         <?php if ($state == FriendshipState::SentFriendRequest) : ?>
                             <p>Friend request sent</p>
-                            <form action="/friend/withrawFriendRequest" method="POST">
+                            <form action="/friend/withdrawFriendRequest" method="POST">
                                 <input type="hidden" name="friendProfileId" value="<?php echo $profile->getId(); ?>" />
-                                <input type="submit" name="withrawFriendRequest" value="WITHRAW FRIEND REQUEST" class="btn btn-secondary">
+                                <button type="submit" name="withdrawFriendRequest" class="btn btn-secondary">WITHRAW FRIEND REQUEST</button>
                             </form>
                         <?php endif; ?>
 
                         <?php if ($state  == FriendshipState::HaveFriendRequest) : ?>
                             <form action="/friend/acceptFriendRequest" method="POST">
                                 <input type="hidden" name="friendProfileId" value="<?php echo $profile->getId(); ?>" />
-                                <input type="submit" name="acceptFriendRequest" value="ACCEPT FRIEND REQUEST" class="btn btn-success" />
+                                <button type="submit" name="acceptFriendRequest" class="btn btn-success">ACCEPT FRIEND REQUEST</button>
                             </form>
                             <br>
                             <form action="/friend/declineFriendRequest" method="POST">
                                 <input type="hidden" name="friendProfileId" value="<?php echo $profile->getId(); ?>" />
-                                <input type="submit" name="declineFriendRequest" value="DECLINE FRIEND REQUEST" class="btn btn-danger" />
+                                <button type="submit" name="declineFriendRequest" class="btn btn-danger">DECLINE FRIEND REQUEST</button>
                             </form>
                         <?php endif; ?>
                     <?php endif; ?>
+
                 </div>
             </div>
         <?php endif; ?>
     </div>
     <div class="col-lg-6">
-        <?php if (isset($params["error"])) :
-            $error = $params['error'];
-            if ($error !== null) :
+        <?php if (
+            $params["status"] == 'addFriend-error' ||
+            $params["status"] == 'removeFriend-error' ||
+            $params["status"] == 'withdrawFriendRequest-error' ||
+            $params["status"] == 'acceptFriendRequest-error' ||
+            $params["status"] == 'declineFriendRequest-error'
+        ) : ?>
+            <?php $friendshipErrors = $params['friendshipErrors'];
                 $errorMessages = array(
                     FriendshipError::Friends => "Invalid attempt already your friend!",
                     FriendshipError::NotFriends => "Invalid attempt not your friend!",
@@ -82,23 +108,12 @@
                 );
 
                 ?>
+            <?php foreach ($friendshipErrors as $errorCode) : ?>
                 <h4 class="alert alert-dismissible alert-danger">
-                    <?php echo $errorMessages[$error] . "<br>"; ?>
+                    <?php echo $errorMessages[$errorCode]; ?>
                 </h4>
-            <?php endif; ?>
-        <?php endif; ?>
+            <?php endforeach; ?>
 
-        <?php if (isset($params["friendProfileError"])) :
-            $friendProfileError = $params['friendProfileError'];
-            if ($friendProfileError !== null) :
-                $errorMessages = array(
-                    FriendProfileError::FriendProfileDoesNotExist => "Profile does not exist!",
-                );
-                ?>
-                <h4 class="alert alert-dismissible alert-danger">
-                    <?php echo $errorMessages[$friendProfileError] . "<br>"; ?>
-                </h4>
-            <?php endif; ?>
         <?php endif; ?>
     </div>
 </div>

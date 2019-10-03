@@ -53,7 +53,7 @@ class AccountRepository
         $params = array(":username" => $username);
         $result = DB::querySelect($query, $params);
         if (!$result) {
-            return NULL;
+            return null;
         }
 
         return $this->mapToAccount($result[0]);

@@ -1,7 +1,7 @@
 <div class="row">
 
     <div class="col-lg-5">
-        <div class="jumbotron center">
+        <div class="jumbotron text-center">
             <h3>LOG IN</h3>
             <p>Enter username and password.</p>
             <form action="/account/logIn" method="POST">
@@ -17,22 +17,19 @@
     </div>
 
     <div class="col-lg-7">
-        <?php
-        if (isset($params["errors"])) :
-            $errors = $params["errors"];
-            $errorMessages = array(
-                AccountError::AccountDoesNotExists => "Account doesn't exist!",
-                AccountError::InvalidPassword => "Invalid password!",
-            );
+        <?php if ($params["status"] == 'logIn-error') : ?>
+            <?php $errors = $params["errors"];
+                $errorMessages = array(
+                    AccountError::AccountDoesNotExists => "Account doesn't exist!",
+                    AccountError::InvalidPassword => "Invalid password!",
+                ); ?>
 
-            foreach ($errors as $errorCode) : ?>
-            <h4 class="alert alert-dismissible alert-danger">
-                <?php echo $errorMessages[$errorCode] . "<br>"; ?>
-            </h4>
-            <?php
-            endforeach;
-        endif;
-        ?>
+            <?php foreach ($errors as $errorCode) : ?>
+                <h4 class="alert alert-dismissible alert-danger">
+                    <?php echo $errorMessages[$errorCode] . "<br>"; ?>
+                </h4>
+            <?php endforeach; ?>
+        <?php endif; ?>
     </div>
-    
+
 </div>

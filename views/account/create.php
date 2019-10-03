@@ -1,7 +1,7 @@
 <div class="row">
 
     <div class="col-lg-5">
-        <div class="jumbotron center">
+        <div class="jumbotron text-center">
             <h3>CREATE ACCOUNT</h3>
             <p>It’s quick and easy.</p>
             <form action="/account/create" method="POST">
@@ -23,26 +23,25 @@
     </div>
 
     <div class="col-lg-7">
-        <?php
-        if (isset($params["errors"])) :
-            $errors = $params["errors"];
-            $errorMessages = array(
-                AccountError::InvalidUsername => "Invalid username!",
-                AccountError::InvalidEmail => "Invalid e-mail!",
-                AccountError::InvalidPassword => "Invalid password!",
-                AccountError::InvalidPasswordRepeat => "Your passwords do not match!",
-                AccountError::UsernameTaken => "Username is already taken!",
-                AccountError::EmailTaken => "You already have account, log in",
-            );
+        <?php if ($params["status"] == 'createAccount-error') : ?>
 
-            foreach ($errors as $errorCode) : ?>
+            <?php $errors = $params["errors"];
+                $errorMessages = array(
+                    AccountError::InvalidUsername => "Username can only have letters, numbs, length 3-32!",
+                    AccountError::InvalidEmail => "Invalid e-mail!",
+                    AccountError::InvalidPassword => "Password length must be 6-60!",
+                    AccountError::InvalidPasswordRepeat => "Your passwords do not match!",
+                    AccountError::UsernameTaken => "Username is already taken!",
+                    AccountError::EmailTaken => "You already have account, log in",
+                ); ?>
+
+            <?php foreach ($errors as $errorCode) : ?>
                 <h4 class="alert alert-dismissible alert-danger">
-                    <?php echo $errorMessages[$errorCode] . "<br>"; ?>
+                    <?php echo $errorMessages[$errorCode]; ?>
                 </h4>
-        <?php
-            endforeach;
-        endif;
-        ?>
+            <?php endforeach; ?>
+
+        <?php endif; ?>
     </div>
 
 </div>

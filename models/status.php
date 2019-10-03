@@ -1,10 +1,4 @@
 <?php
-class StatusError
-{
-    const RequiredText = 0;
-    const TextLimitExceed = 1;
-    const CanNotReply = 2;
-}
 class Status
 {
     private $id;
@@ -12,7 +6,6 @@ class Status
     private $profileId;
     private $parentId;
     private $createdAt;
-    private $updatedAt;
 
     public function __construct($text, $profileId, $parentId)
     {
@@ -46,11 +39,6 @@ class Status
         return $this->createdAt;
     }
 
-    public function getUpdatedAt()
-    {
-        return $this->updatedAt;
-    }
-
     public function setId($id)
     {
         $this->id = $id;
@@ -76,20 +64,14 @@ class Status
         $this->createdAt = $createdAt;
     }
 
-    public function setUpdatedAt($updatedAt)
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
     public function validateStatusParams()
     {
         $errors = array();
         if(empty($this->text)){
-            array_push($errors, StatusError::RequiredText);
-        }
-        
+            $errors[] = StatusError::RequiredText;
+        }      
         if(strlen($this->text) > 140){
-            array_push($errors, StatusError::TextLimitExceed);
+            $errors[] = StatusError::TextLimitExceed;
         }
         
         return $errors;

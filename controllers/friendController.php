@@ -13,7 +13,6 @@ class FriendController
         $this->sessionHelper = new SessionHelper();
         $this->sessionHelper->requireAuthorized();
         $this->pageHelper = new PageHelper();
-
         $this->friendshipService = new FriendshipService();
         $accountId = $this->sessionHelper->getUserId();
         $this->profileService = new ProfileService();
@@ -24,93 +23,112 @@ class FriendController
     {
         $friends = $this->friendshipService->getFriends($this->myProfileId);
         $friendRequests = $this->friendshipService->getFriendRequests($this->myProfileId);
-        $params = array("friends" => $friends, "friendRequests" => $friendRequests);
+
+        $params = array(
+            "friends" => $friends, 
+            "friendRequests" => $friendRequests
+        );
+
         $this->pageHelper->displayPage("friend/view.php", $params);
     }
 
     function POST_addFriend()
     {
         $friendProfileId = $_POST["friendProfileId"];
-
-        $friendProfile = $this->profileService->getProfileFromId($friendProfileId);
-        $error = $this->friendshipService->validateAddFriendship($this->myProfileId, $friendProfileId, $friendProfile);
-
+        $friendProfile = $this->profileService->getProfileFromId($friendProfileId);      
         if(!$friendProfile){
             header("Location: /profile/view?profileId=$friendProfileId");
             return;
         }
+        
+        $friendshipErrors =  $this->friendshipService->addFriendship($this->myProfileId, $friendProfileId);
 
-        if ($error !== null) {
-            $this->sessionHelper->setFriendshipError($error);
-            header("Location: /profile/view?profileId=$friendProfileId");
-            return;
+        $status = 'addFriend-success';
+        if ($friendshipErrors) {
+            $this->sessionHelper->setError(array("friendshipErrors" => $friendshipErrors));
+            $status = 'addFriend-error';
         }
 
-        $this->friendshipService->addFriendship($this->myProfileId, $friendProfileId);
-        header("Location: /profile/view?profileId=$friendProfileId");
+        header("Location: /profile/view?profileId=$friendProfileId&status=$status");
     }
 
     function POST_removeFriend()
     {
         $friendProfileId = $_POST["friendProfileId"];
-
-        $error = $this->friendshipService->validateRemoveFriendship($this->myProfileId, $friendProfileId);
-        
-        if ($error !== null) {
-            $this->sessionHelper->setFriendshipError($error);
+        $friendProfile = $this->profileService->getProfileFromId($friendProfileId);      
+        if(!$friendProfile){
             header("Location: /profile/view?profileId=$friendProfileId");
             return;
         }
 
-        $this->friendshipService->removeFriendship($this->myProfileId, $friendProfileId);
-        header("Location: /profile/view?profileId=$friendProfileId");
+        $friendshipErrors = $this->friendshipService->removeFriendship($this->myProfileId, $friendProfileId);
+        
+        $status = 'removeFriend-success';
+        if ($friendshipErrors) {
+            $this->sessionHelper->setError(array("friendshipErrors" => $friendshipErrors));
+            $status = 'removeFriend-error';
+        }
+      
+        header("Location: /profile/view?profileId=$friendProfileId&status=$status");
     }
 
-    function POST_withrawFriendRequest()
+    function POST_withdrawFriendRequest()
     {
         $friendProfileId = $_POST["friendProfileId"];
-
-        $error = $this->friendshipService->validateWithdrawFriendshipRequest($this->myProfileId, $friendProfileId);
-
-        if ($error !== null) {
-            $this->sessionHelper->setFriendshipError($error);
+        $friendProfile = $this->profileService->getProfileFromId($friendProfileId);      
+        if(!$friendProfile){
             header("Location: /profile/view?profileId=$friendProfileId");
             return;
         }
 
-        $this->friendshipService->withdrawFriendshipRequest($this->myProfileId, $friendProfileId);
-        header("Location: /profile/view?profileId=$friendProfileId");
+        $friendshipErrors =  $this->friendshipService->withdrawFriendshipRequest($this->myProfileId, $friendProfileId);
+
+        $status = 'withdrawFriendRequest-success';
+        if ($friendshipErrors) {
+            $this->sessionHelper->setError(array("friendshipErrors" => $friendshipErrors));
+            $status = 'withdrawFriendRequest-error';
+        }
+
+        header("Location: /profile/view?profileId=$friendProfileId&status=$status");
     }
 
     function POST_acceptFriendRequest()
     {
         $friendProfileId = $_POST["friendProfileId"];
-
-        $error = $this->friendshipService->validateAcceptFriendshipRequest($this->myProfileId, $friendProfileId);
-
-        if ($error !== null) {
-            $this->sessionHelper->setFriendshipError($error);
+        $friendProfile = $this->profileService->getProfileFromId($friendProfileId);      
+        if(!$friendProfile){
             header("Location: /profile/view?profileId=$friendProfileId");
             return;
         }
 
-        $this->friendshipService->acceptFriendshipRequest($this->myProfileId, $friendProfileId);
-        header("Location: /profile/view?profileId=$friendProfileId");
+        $friendshipErrors = $this->friendshipService->acceptFriendshipRequest($this->myProfileId, $friendProfileId);
+
+        $status = 'acceptFriendRequest-success';
+        if ($friendshipErrors) {
+            $this->sessionHelper->setError(array("friendshipErrors" => $friendshipErrors));
+            $status = 'acceptFriendRequest-error';
+        }
+   
+        header("Location: /profile/view?profileId=$friendProfileId&status=$status");
     }
 
     function POST_declineFriendRequest()
     {
         $friendProfileId = $_POST["friendProfileId"];
-
-        $error = $this->friendshipService->ValidateDeclineFriendshipRequest($this->myProfileId, $friendProfileId);
-
-        if ($error !== null) {
-            $this->sessionHelper->setFriendshipError($error);
+        $friendProfile = $this->profileService->getProfileFromId($friendProfileId);      
+        if(!$friendProfile){
             header("Location: /profile/view?profileId=$friendProfileId");
             return;
         }
 
-        $this->friendshipService->declineFriendshipRequest($this->myProfileId, $friendProfileId);
-        header("Location: /profile/view?profileId=$friendProfileId");
+        $friendshipErrors = $this->friendshipService->declineFriendshipRequest($this->myProfileId, $friendProfileId);
+
+        $status = 'declineFriendRequest-success';
+        if ($friendshipErrors) {
+            $this->sessionHelper->setError(array("friendshipErrors" => $friendshipErrors));
+            $status = 'declineFriendRequest-error';
+        }
+
+        header("Location: /profile/view?profileId=$friendProfileId&status=$status");
     }
 }

@@ -4,17 +4,29 @@ class AccountService
 {
     private $repository;
 
-    function __construct()
+    public function __construct()
     {
         $this->repository = new AccountRepository();
     }
 
-    function validateAccount($username, $email, $password, $passwordRepeat)
+    public function createAccount($username, $email, $password, $passwordRepeat)
+    {
+        $errors = $this->validateAccount($username, $email, $password, $passwordRepeat);
+        if ($errors) {
+            return $errors;
+        }
+
+        $account = new Account($username, $email, $password, $passwordRepeat);
+        $this->repository->createAccount($account);
+        return array();
+    }
+
+    private function validateAccount($username, $email, $password, $passwordRepeat)
     {
         $account = new Account($username, $email, $password, $passwordRepeat);
         $errors = $account->validateAccountParams();
 
-        if(!count($errors)){
+        if (empty($errors)) {
             if ($this->repository->isUsernameTaken($username)) {
                 $errors[] = AccountError::UsernameTaken;
             } elseif ($this->repository->isEmailTaken($email)) {
@@ -25,35 +37,21 @@ class AccountService
         return $errors;
     }
 
-    function createAccount($username, $email, $password, $passwordRepeat)
-    {
-        $account = new Account($username, $email, $password, $passwordRepeat);
-        $this->repository->createAccount($account);
-    }
-
     function getAccount($username)
     {
         $account = $this->repository->getAccount($username);
         return $account;
     }
 
-    function DoesAccountExists($account)
+    public function validateLogIn($account, $password)
     {
         $errors = array();
         if (!$account) {
             $errors[] = AccountError::AccountDoesNotExists;
-        }
-        return $errors;
-    }
-
-    function isPasswordMatching($account, $password)
-    {
-        $errors = array();
-        if (!$account->isPasswordMatching($password)){
+        } elseif (!$account->isPasswordMatching($password)) {
             $errors[] = AccountError::InvalidPassword;
         }
-       return $errors;
+
+        return $errors;
     }
 }
-
-

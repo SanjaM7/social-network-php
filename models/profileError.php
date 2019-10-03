@@ -8,4 +8,5 @@ class ProfileError
     const InvalidExtention = 3;
     const ErrorUploading = 4;
     const ImageTooLarge = 5;
+    const ProfileDoesNotExist = 6;
 }

@@ -16,16 +16,30 @@ class IndexController
     }
     function GET_index()
     {
+        $status = null;
+        $errors = $this->sessionHelper->getAndClearError();
+        if (isset($_GET['status'])) {
+            $status = $_GET['status'];
+        }
         $params = array();
+
         if ($this->sessionHelper->isLoggedIn()) {
 
             $myProfile = $this->profileService->getProfileFromAccountId($this->accountId);
-            
-            $params = array("profile" => $myProfile);
+            $status = "index-success";
+            $params = array(
+                "profile" => $myProfile,
+                "status" => $status,
+                "errors" => array()
+            );
+        } else {
+            $params = array(
+                "status" => $status,
+                "errors" => array()
+            );
         }
 
-        $this->pageHelper->displayPage('index.php', $params);
-
-        
+        $params = array_merge($params, $errors);
+        $this->pageHelper->displayPage("index.php", $params);
     }
 }

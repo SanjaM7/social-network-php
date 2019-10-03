@@ -28,30 +28,33 @@ class ProfileService
         return $myProfileId;
     }
 
-    public function validateProfileParams($profile, $firstName, $lastName, $yearOfBirth, $image)
+    public function editProfile($accountId, $firstName,  $lastName, $yearOfBirth, $image, $gender)
     {
+        $profile = $this->repository->getProfileFromAccountId($accountId);
         $errors = $profile->validateProfileParams($firstName, $lastName, $yearOfBirth, $image);
-        return $errors;
-    }
-
-    public function editProfile($profile, $firstName,  $lastName, $yearOfBirth, $image, $gender)
-    {
+        if ($errors) {
+            return $errors;
+        }
         $profile->setProfile($firstName,  $lastName, $yearOfBirth, $image, $gender);
         $this->repository->editProfile($profile);
+        return array();
     }
 
     public function searchProfile($searchName)
     {
+        if(empty($searchName)){
+            return array();
+        }
         $profiles = $this->repository->searchProfile($searchName);
         return $profiles;
     }
 
-    public function validateFriendProfile($friendProfileId)
+    public function validateProfile($profileId)
     {
         $error = null;
-        $friendProfile = $this->repository->getProfileFromId($friendProfileId);
-        if(!$friendProfile){
-            $error = FriendProfileError::FriendProfileDoesNotExist;
+        $profile = $this->repository->getProfileFromId($profileId);
+        if(!$profile){
+            $error = ProfileError::ProfileDoesNotExist;
         }
 
         return $error;

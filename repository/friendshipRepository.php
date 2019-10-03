@@ -2,6 +2,62 @@
 
 class FriendshipRepository
 {
+    public function getFriends($myProfileId)
+    {
+        $query = "SELECT * FROM friendships WHERE (
+        (senderId = :myProfileId AND status = :0) 
+        OR
+        (receiverId = :myProfileId AND status = :0)
+        )";
+        $params = array(
+            "myProfileId" => $myProfileId,
+            ":0" => FriendshipState::Friends
+        );
+
+        $result = DB::querySelect($query, $params);
+        if (!$result) {
+            return array();
+        }
+
+        $friends = array();
+        foreach ($result as $row) {
+            $senderId = $row["senderId"];
+            $receiverId = $row["receiverId"];
+            if ($senderId == $myProfileId) {
+                $friendProfileId = $receiverId;
+            } else {
+                $friendProfileId = $senderId;
+            }
+            $repository = new ProfileRepository();
+            $friends[] = $repository->getProfileFromId($friendProfileId);
+        }
+        
+        return $friends;
+    }
+
+    public function getFriendRequests($myProfileId)
+    {
+        $query = "SELECT * FROM friendships WHERE receiverId = :myProfileId AND status = :1";
+        $params = array(
+            ":myProfileId" => $myProfileId,
+            ":1" => FriendshipState::NotFriends
+        );
+
+        $result = DB::querySelect($query, $params);
+        if (!$result) {
+            return array();
+        }
+
+        $friendRequests = array();
+        foreach ($result as $row) {
+            $senderId = $row["senderId"];
+            $repository = new ProfileRepository();
+            $friendRequests[] = $repository->getProfileFromId($senderId);
+        }
+
+        return $friendRequests;
+    }
+    
     public function getFriendship($myProfileId, $friendProfileId)
     {
         $query = "SELECT * FROM friendships WHERE 
@@ -67,62 +123,6 @@ class FriendshipRepository
         return $friendships;
     }
 
-    public function getFriends($myProfileId)
-    {
-        $query = "SELECT * FROM friendships WHERE (
-        (senderId = :myProfileId AND status = :0) 
-        OR
-        (receiverId = :myProfileId AND status = :0)
-        )";
-        $params = array(
-            "myProfileId" => $myProfileId,
-            ":0" => FriendshipState::Friends
-        );
-
-        $result = DB::querySelect($query, $params);
-        if (!$result) {
-            return array();
-        }
-
-        $friends = array();
-        foreach ($result as $row) {
-            $senderId = $row["senderId"];
-            $receiverId = $row["receiverId"];
-            if ($senderId == $myProfileId) {
-                $friendProfileId = $receiverId;
-            } else {
-                $friendProfileId = $senderId;
-            }
-            $repository = new ProfileRepository();
-            $friends[] = $repository->getProfileFromId($friendProfileId);
-        }
-        
-        return $friends;
-    }
-
-    public function getFriendRequests($myProfileId)
-    {
-        $query = "SELECT * FROM friendships WHERE receiverId = :myProfileId AND status = :1";
-        $params = array(
-            ":myProfileId" => $myProfileId,
-            ":1" => FriendshipState::NotFriends
-        );
-
-        $result = DB::querySelect($query, $params);
-        if (!$result) {
-            return array();
-        }
-
-        $friendRequests = array();
-        foreach ($result as $row) {
-            $senderId = $row["senderId"];
-            $repository = new ProfileRepository();
-            $friendRequests[] = $repository->getProfileFromId($senderId);
-        }
-
-        return $friendRequests;
-    }
-
     public function addFriendship($friendship)
     {
         $query = "INSERT INTO friendships VALUES ('', :myProfileId, :friendProfileId, :1)";
@@ -145,7 +145,7 @@ class FriendshipRepository
         Db::queryDelete($query, $params);
     }
 
-    public function withrawFriendshipRequest($friendship)
+    public function withdrawFriendshipRequest($friendship)
     {
         $query = "DELETE FROM friendships WHERE id = :id";
         $params = array(

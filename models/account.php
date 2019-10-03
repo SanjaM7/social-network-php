@@ -17,6 +17,11 @@ class Account
         $this->hashedPassword = $this->hashPassword($password);
     }
 
+    private function hashPassword($password)
+    {
+        return password_hash($password, PASSWORD_BCRYPT);
+    }
+
     public function getId()
     {
         return $this->id;
@@ -37,11 +42,6 @@ class Account
         return $this->hashedPassword;
     }
 
-    private function hashPassword($password)
-    {
-        return password_hash($password, PASSWORD_BCRYPT);
-    }
-
     public function setId($id)
     {
         $this->id = $id;
@@ -60,19 +60,19 @@ class Account
         $errors = array();
 
         if (!preg_match("/^[A-Za-z][A-Za-z0-9]{2,31}$/", $this->username)) {
-            array_push($errors, AccountError::InvalidUsername);
+            $errors[] = AccountError::InvalidUsername;
         }
 
         if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
-            array_push($errors, AccountError::InvalidEmail);
+            $errors[] = AccountError::InvalidEmail;
         }
 
         if (strlen($this->password) < 6 || strlen($this->password) > 60) {
-            array_push($errors, AccountError::InvalidPassword);
+            $errors[] = AccountError::InvalidPassword;
         }
 
         if ($this->password !== $this->passwordRepeat) {
-            array_push($errors, AccountError::InvalidPasswordRepeat);
+            $errors[] = AccountError::InvalidPasswordRepeat;
         }
 
         return $errors;

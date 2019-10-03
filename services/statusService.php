@@ -4,51 +4,87 @@ class StatusService
 {
     private $repository;
 
-    function __construct()
+    public function __construct()
     {
         $this->repository = new StatusRepository();
     }
 
-    function validateStatus($text, $myProfileId, $parentId)
+    public function postStatus($text, $myProfileId, $parentId)
+    {
+        $errors = $this->validateStatus($text, $myProfileId, $parentId);
+        if ($errors) {
+            return $errors;
+        }
+        $status = new Status($text, $myProfileId, $parentId);
+        $this->repository->postStatus($status);
+        return array();
+    }
+
+    public function reply($text, $myProfileId, $parentId, $friends)
+    {
+        $errors = $this->validateStatus($text, $myProfileId, $parentId);
+        if ($errors) {
+            return $errors;
+        }
+        $parentStatus = $this->getStatusFromId($parentId);
+        $canReply = FALSE;
+        if (!$parentStatus) {
+            $errors[] = StatusError::StatusDoesNotExist;
+        } else if ($parentStatus->getParentId() != NULL) {
+            $errors[] = StatusError::CanNotReplyOnReply;
+        } else if ($friends) {
+            foreach ($friends as $friend) {
+                if ($parentStatus->getProfileId() == $friend->getId()) {
+                    $canReply = TRUE;
+                }
+            }
+            if ($parentStatus->getProfileId() == $myProfileId) {
+                $canReply = TRUE;
+            }
+            if ($canReply == FALSE) {
+                $errors[] = StatusError::NotYourFriend;
+            }
+        }
+
+        if($errors){
+            return $errors;
+        }
+
+        $status = new Status($text, $myProfileId, $parentId);
+        $this->repository->postStatus($status);
+        return array();
+    }
+
+    
+    private function validateStatus($text, $myProfileId, $parentId)
     {
         $status = new Status($text, $myProfileId, $parentId);
         $errors = $status->validateStatusParams();
         return $errors;
     }
 
-    function validateReply($text, $myProfileId, $parentId, $friends)
+    public function getStatusFromId($id)
     {
-        $errors = $this->validateStatus($text, $myProfileId, $parentId);
-        $parentStatus = $this->repository->getStatusFromId($parentId);
-        $canReply = FALSE;
-        if ($parentStatus) {
-            foreach ($friends as $friend) {
-                if ($friend->getId() == $parentStatus->getProfileId() || $myProfileId == $parentStatus->getProfileId()) {
-                    $canReply = TRUE;
+        $status = $this->repository->getStatusFromId($id);
+        return $status;
+    }
+
+    public function getStatusesAndReplies($myProfileId)
+    {
+        $statusesAndReplies = $this->repository->getStatusesAndReplies($myProfileId);
+        $statuses = array();
+        $replies = array();
+        if ($statusesAndReplies) {
+            foreach ($statusesAndReplies as $statusOrReply) {
+                if ($statusOrReply->parentId == NULL) {
+                    $statuses[] = $statusOrReply;
+                } else {
+                    $replies[] = $statusOrReply;
                 }
             }
         }
-        if ($canReply == FALSE) {
-            array_push($errors, StatusError::CanNotReply);
-        }
-        return $errors;
-    }
-
-    function postStatus($text, $profileId, $parentId)
-    {
-        $status = new Status($text, $profileId, $parentId);
-        $this->repository->postStatus($status);
-    }
-
-    function getStatuses($myProfileId)
-    {
-        $statuses = $this->repository->getStatuses($myProfileId);
-        return $statuses;
-    }
-
-    function getReplies($myProfileId)
-    {
-        $replies = $this->repository->getReplies($myProfileId);
-        return $replies;
+        $replies = array_reverse($replies);
+        $statusesAndReplies = array("statuses" => $statuses, "replies" => $replies);
+        return $statusesAndReplies;
     }
 }

@@ -2,12 +2,12 @@
 
 class SessionHelper
 {
-    public function login($id)
+    public function logIn($id)
     {
         $_SESSION["accountId"] = $id;
     }
 
-    public function logout()
+    public function logOut()
     {
         $_SESSION["accountId"] = null;
     }
@@ -38,20 +38,23 @@ class SessionHelper
         }
     }
 
-    public function setFriendshipError($error)
+    public function setError($error)
     {
-        $_SESSION["friendshipError"] = $error;
+        $_SESSION["error"] = $error;
     }
 
-    public function getAndClearFriendshipError()
+    public function getAndClearError()
     {
-        $error = null;
-        if (isset($_SESSION["friendshipError"])) {
-            $error = $_SESSION["friendshipError"];
+        $error = array();
+        if (isset($_SESSION["error"])) {
+            $error = $_SESSION["error"];
         }
-        
-        $this->setFriendshipError(null);
-        return $error;
-    }
 
+        $this->setError(null);
+        if (!$error) {
+            return array();
+        }
+
+        return (array) $error;
+    }
 }

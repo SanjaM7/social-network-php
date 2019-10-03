@@ -2,88 +2,45 @@
 
 class StatusRepository
 {
-    public function postStatus($status)
+    public function getStatusesAndReplies($myProfileId)
     {
-        $query = "INSERT into statuses(text, profileId, parentId) VALUES (:text, :profileId, :parentId)";
-        $params = array(
-            ":text" => $status->getText(),
-            ":profileId" => $status->getProfileId(),
-            ":parentId" => $status->getParentId()
-        );
-        $id = Db::queryInsert($query, $params);
-        $status->setId($id);
-    }
-
-    public function getStatuses($myProfileId)
-    {
-        $query = "SELECT s.id, s.text, s.profileId, s.parentId, s.createdAt, s.updatedAt, 
-        p.accountId, p.firstName, p.lastName 
-        FROM statuses AS s 
+        $query = "SELECT p.accountId, p.firstName, p.lastName, 
+        s.id, s.text, s.profileId, s.parentId, s.createdAt, 
+        COALESCE(likesCount.countOfLikes, 0) as countOfLikes, 
+        COALESCE(myLikes.hasLike, 0) as hasMyLike
+        FROM statuses as s  
         INNER JOIN profiles AS p
-        ON s.profileId = p.id
-        WHERE s.profileId IN
-        (
-            SELECT senderId FROM friendships WHERE
-            receiverId = :myProfileId AND status = :0
-            UNION
-            SELECT receiverId FROM friendships WHERE
-            senderId = :myProfileId AND status = :0
-            UNION
-            SELECT :myProfileId       
-        )
-        AND s.parentId IS NULL
-        ORDER BY s.updatedAt DESC
+        ON s.profileId = p.id      
+        LEFT JOIN (SELECT COUNT(statusId) as countOfLikes, statusId FROM likes GROUP BY statusId) as likesCount
+        ON s.id = likesCount.statusId        
+        LEFT JOIN (SELECT COUNT(statusId) as hasLike, statusId FROM likes WHERE profileId = :myProfileId GROUP BY statusId) as myLikes 
+        ON s.id = myLikes.statusId        
+            WHERE s.profileId IN
+            (
+                SELECT senderId FROM friendships WHERE
+                receiverId = :myProfileId AND status = :0
+                UNION
+                SELECT receiverId FROM friendships WHERE
+                senderId = :myProfileId AND status = :0
+                UNION
+                SELECT :myProfileId      
+            )
+            ORDER BY s.createdAt DESC
         ";
         $params = array(
-            "myProfileId" => $myProfileId,
+            ":myProfileId" => $myProfileId,
             ":0" => 0
-
         );
+
         $result = DB::querySelect($query, $params);
 
         if (!$result) {
             return array();
         }
 
-        $statuses = $this->mapToStatusesView($result);
+        $statusesAndReplies = $this->mapToStatusesView($result);
 
-        return $statuses;
-    }
-
-    public function getReplies($myProfileId)
-    {
-        $query = "SELECT s.id, s.text, s.profileId, s.parentId, s.createdAt, s.updatedAt, 
-        p.accountId, p.firstName, p.lastName 
-        FROM statuses AS s 
-        INNER JOIN profiles AS p
-        ON s.profileId = p.id
-        WHERE s.profileId IN
-        (
-            SELECT senderId FROM friendships WHERE
-            receiverId = :myProfileId AND status = :0
-            UNION
-            SELECT receiverId FROM friendships WHERE
-            senderId = :myProfileId AND status = :0
-            UNION
-            SELECT :myProfileId       
-        )
-        AND s.parentId IS NOT NULL
-        ORDER BY s.updatedAt 
-        ";
-        $params = array(
-            "myProfileId" => $myProfileId,
-            ":0" => 0
-
-        );
-        $result = DB::querySelect($query, $params);
-
-        if (!$result) {
-            return array();
-        }
-
-        $replies = $this->mapToStatusesView($result);
-
-        return $replies;
+        return $statusesAndReplies;
     }
 
     private function mapToStatusesView($result)
@@ -91,24 +48,17 @@ class StatusRepository
         $statues = array();
 
         foreach ($result as $row) {
-            $id = $row["id"];
-            $text = $row["text"];
-            $profileId = $row["profileId"];
-            $parentId = $row["parentId"];
-            $createdAt = $row["createdAt"];
-            $updatedAt = $row["updatedAt"];
-            $firstName = $row["firstName"];
-            $lastName = $row["lastName"];
-
             $status = new StatusViewModel();
-            $status->id = $id;
-            $status->text = $text;
-            $status->profileId = $profileId;
-            $status->parentId = $parentId;
-            $status->createdAt = $createdAt;
-            $status->updatedAt = $updatedAt;
-            $status->firstName = $firstName;
-            $status->lastName = $lastName;
+            $status->accountId = $row["accountId"];
+            $status->firstName = $row["firstName"];
+            $status->lastName = $row["lastName"];
+            $status->id = $row["id"];
+            $status->text = $row["text"];
+            $status->profileId = $row["profileId"];
+            $status->parentId = $row["parentId"];
+            $status->createdAt = $row["createdAt"];
+            $status->countOfLikes = $row["countOfLikes"];
+            $status->hasMyLike = $row["hasMyLike"];
 
             $statues[] = $status;
         }
@@ -142,18 +92,9 @@ class StatusRepository
         $statues = array();
 
         foreach ($result as $row) {
-            $id = $row["id"];
-            $text = $row["text"];
-            $profileId = $row["profileId"];
-            $parentId = $row["parentId"];
-            $createdAt = $row["createdAt"];
-            $updatedAt = $row["updatedAt"];
-
-            $status = new Status($text, $profileId, $parentId);
-            $status->setId($id);
-            $status->setText($text);
-            $status->setCreatedAt($createdAt);
-            $status->setUpdatedAt($updatedAt);
+            $status = new Status($row["text"], $row["profileId"], $row["parentId"]);
+            $status->setId($row["id"]);
+            $status->setCreatedAt($row["createdAt"]);
 
             $statues[] = $status;
         }
@@ -161,4 +102,15 @@ class StatusRepository
         return $statues;
     }
 
+    public function postStatus($status)
+    {
+        $query = "INSERT into statuses(text, profileId, parentId) VALUES (:text, :profileId, :parentId)";
+        $params = array(
+            ":text" => $status->getText(),
+            ":profileId" => $status->getProfileId(),
+            ":parentId" => $status->getParentId()
+        );
+        $id = Db::queryInsert($query, $params);
+        $status->setId($id);
+    }
 }

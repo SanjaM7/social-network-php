@@ -7,5 +7,4 @@ class FriendshipError
     const SentFriendRequest = 2;
     const HaveFriendRequest = 3;
     const YourProfile = 4;
-    const ProfileDoesNotExist = 5;
 }

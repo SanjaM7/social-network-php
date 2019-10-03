@@ -99,9 +99,6 @@ class ProfileRepository
      */
     public function searchProfile($searchName)
     {
-        if(empty($searchName)){
-            return NULL;
-        }
         $query = "SELECT * FROM profiles WHERE firstName LIKE :searchName OR lastName LIKE :searchName";
         $params = array(
             ":searchName" => "%" . $searchName . "%",
