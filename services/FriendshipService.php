@@ -1,6 +1,6 @@
 <?php
 
-class FriendshipService
+class FriendshipService implements IFriendshipService
 {
     private $repository;
     function __construct()
@@ -32,7 +32,7 @@ class FriendshipService
         return array();
     }
 
-    private function validateAddFriendship($myProfileId, $friendProfileId)
+    public function validateAddFriendship($myProfileId, $friendProfileId)
     {
         $friendship = $this->repository->getFriendship($myProfileId, $friendProfileId);
         $errors = array();
@@ -63,7 +63,7 @@ class FriendshipService
         return array();
     }
 
-    private function validateRemoveFriendship($friendship)
+    public function validateRemoveFriendship($friendship)
     {
         $errors = array();
         if (!$friendship) {
@@ -89,7 +89,7 @@ class FriendshipService
         return array();
     }
 
-    private function validateWithdrawFriendshipRequest($friendship)
+    public function validateWithdrawFriendshipRequest($friendship)
     {
         $errors = array();
         if (!$friendship) {
@@ -115,7 +115,7 @@ class FriendshipService
         return array();
     }
 
-    private function validateAcceptFriendshipRequest($friendship)
+    public function validateAcceptFriendshipRequest($friendship)
     {
         $errors = array();
         if (!$friendship) {

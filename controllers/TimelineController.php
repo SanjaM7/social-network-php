@@ -1,9 +1,7 @@
 <?php
 
-class TimelineController
+class TimelineController extends Controller
 {
-    private $sessionHelper;
-    private $pageHelper;
     private $statusService;
     private $myProfileId;
     private $friendshipService;
@@ -11,9 +9,8 @@ class TimelineController
 
     public function __construct()
     {
-        $this->sessionHelper = new SessionHelper();
+        parent::__construct();
         $this->sessionHelper->requireAuthorized();
-        $this->pageHelper = new PageHelper();
         $accountId = $this->sessionHelper->getUserId();
         $profileService = new ProfileService();
         $this->myProfileId = $profileService->getProfileIdFromAccountId($accountId);
@@ -93,6 +90,24 @@ class TimelineController
         if ($likeErrors) {
             $this->sessionHelper->setError(array("likeErrors" => $likeErrors));
             $status = 'like-error';
+        } 
+
+        header("Location: /timeline/view?status=$status");
+    }
+
+    function POST_unlike()
+    {
+        $statusId = $_POST['statusId'];
+
+        $status = $this->statusService->getStatusFromId($statusId);
+        $friends = $this->friendshipService->getFriends($this->myProfileId);
+
+        $likeErrors = $this->likeService->unlike($statusId, $this->myProfileId, $status, $friends);
+
+        $status = 'unlike-success';
+        if ($likeErrors) {
+            $this->sessionHelper->setError(array("likeErrors" => $likeErrors));
+            $status = 'unlike-error';
         } 
 
         header("Location: /timeline/view?status=$status");

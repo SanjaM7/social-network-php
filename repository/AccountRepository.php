@@ -29,7 +29,7 @@ class AccountRepository
      */
     public function createAccount($account)
     {
-        $query = "INSERT INTO accounts VALUES ('', :username, :email, :password)";
+        $query = "INSERT INTO accounts VALUES (null, :username, :email, :password)";
         $params = array(
             ":username" => $account->getUsername(),
             ":email" => $account->getEmail(),

@@ -1,6 +1,6 @@
 <?php
 
-class StatusService
+class StatusService implements IStatusService
 {
     private $repository;
 
@@ -56,7 +56,7 @@ class StatusService
     }
 
     
-    private function validateStatus($text, $myProfileId, $parentId)
+    public function validateStatus($text, $myProfileId, $parentId)
     {
         $status = new Status($text, $myProfileId, $parentId);
         $errors = $status->validateStatusParams();

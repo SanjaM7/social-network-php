@@ -1,6 +1,6 @@
 <?php
 
-class AccountService
+class AccountService implements IAccountService
 {
     private $repository;
 
@@ -21,7 +21,7 @@ class AccountService
         return array();
     }
 
-    private function validateAccount($username, $email, $password, $passwordRepeat)
+    public function validateAccount($username, $email, $password, $passwordRepeat)
     {
         $account = new Account($username, $email, $password, $passwordRepeat);
         $errors = $account->validateAccountParams();
@@ -37,7 +37,7 @@ class AccountService
         return $errors;
     }
 
-    function getAccount($username)
+    public function getAccount($username)
     {
         $account = $this->repository->getAccount($username);
         return $account;

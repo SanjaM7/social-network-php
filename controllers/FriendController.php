@@ -1,18 +1,15 @@
 <?php
 
-class FriendController
+class FriendController extends Controller
 {
-    private $sessionHelper;
-    private $pageHelper;
     private $friendshipService;
     private $profileService;
     private $myProfileId;
 
     public function __construct()
     {
-        $this->sessionHelper = new SessionHelper();
+        parent::__construct();
         $this->sessionHelper->requireAuthorized();
-        $this->pageHelper = new PageHelper();
         $this->friendshipService = new FriendshipService();
         $accountId = $this->sessionHelper->getUserId();
         $this->profileService = new ProfileService();

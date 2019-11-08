@@ -1,6 +1,6 @@
 <?php
 
-class SessionHelper
+trait AutenticationTrait 
 {
     public function logIn($id)
     {
@@ -14,6 +14,10 @@ class SessionHelper
 
     public function getUserId()
     {
+        if(!$this->isLoggedIn()){
+            return null;
+        }
+
         return $_SESSION["accountId"];
     }
 
@@ -21,7 +25,10 @@ class SessionHelper
     {
         return isset($_SESSION["accountId"]);
     }
+}
 
+trait AuthorizationTrait
+{
     public function requireAuthorized()
     {
         if (!$this->isLoggedIn()) {
@@ -37,7 +44,10 @@ class SessionHelper
             return;
         }
     }
+}
 
+trait ErrorTrait
+{
     public function setError($error)
     {
         $_SESSION["error"] = $error;
@@ -57,4 +67,8 @@ class SessionHelper
 
         return (array) $error;
     }
+}
+class SessionHelper
+{
+    use AutenticationTrait, AuthorizationTrait, ErrorTrait;
 }

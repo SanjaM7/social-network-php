@@ -8,8 +8,8 @@ class Db
     private static function connect()
     {
         $servername = "localhost";
-        $username = "root";
-        $password = "";
+        $username = "sanja";
+        $password = "123456";
         $dbname = "social_network";
         $charset = "utf8mb4";
 

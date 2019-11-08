@@ -1,6 +1,6 @@
 <?php
 
-class Account
+class Account 
 {
     private $id;
     private $username;
@@ -17,7 +17,7 @@ class Account
         $this->hashedPassword = $this->hashPassword($password);
     }
 
-    private function hashPassword($password)
+    public function hashPassword($password)
     {
         return password_hash($password, PASSWORD_BCRYPT);
     }

@@ -7,6 +7,9 @@
 <?php if ($params['status'] == "like-success") : ?>
     <h4 class="alert alert-dismissible alert-success">Post liked. </h4>
 <?php endif; ?>
+<?php if ($params['status'] == "unlike-success") : ?>
+    <h4 class="alert alert-dismissible alert-danger">Post unliked. </h4>
+<?php endif; ?>
 
 <div class="row">
     <div class="col-lg-6 my-1">
@@ -41,7 +44,8 @@
                 $errorMessages = array(
                     LikeError::StatusDoesNotExist => "You can't like post that does not exist!",
                     LikeError::NotYourFriend => "You can only like your own or your friend's post",
-                    LikeError::StatusAlreadyLiked => "You have already liked that post!"
+                    LikeError::StatusAlreadyLiked => "You have already liked that post!",
+                    LikeError::StatusIsNotLiked => "You haven't liked that post!"
                 );
                 ?>
             <?php foreach ($likeErrors as $errorCode) : ?>
@@ -82,6 +86,13 @@
                                         <button type="submit" name="like" class="btn btn-link p-0">like</button>
                                     </div>
                                 </form>
+                            <?php elseif ($status->hasMyLike == 1) : ?>
+                                <form action="/timeline/unlike" method="POST">
+                                    <div class="form-group">
+                                        <input type="hidden" name="statusId" value="<?php echo $status->id; ?>" />
+                                        <button type="submit" name="like" class="btn btn-link p-0">unlike</button>
+                                    </div>
+                                </form>
                             <?php endif; ?>
                         </div>
                         <div class="col-lg-4 my-1">
@@ -110,6 +121,13 @@
                                                 <div class="form-group">
                                                     <input type="hidden" name="statusId" value="<?php echo $reply->id; ?>" />
                                                     <button type="submit" name="like" class="btn btn-link p-0">like</button>
+                                                </div>
+                                            </form>
+                                        <?php elseif ($reply->hasMyLike == 1) : ?>
+                                            <form action="/timeline/unlike" method="POST">
+                                                <div class="form-group">
+                                                    <input type="hidden" name="statusId" value="<?php echo $reply->id; ?>" />
+                                                    <button type="submit" name="like" class="btn btn-link p-0">unlike</button>
                                                 </div>
                                             </form>
                                         <?php endif; ?>

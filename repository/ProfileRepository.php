@@ -7,7 +7,7 @@ class ProfileRepository
      */
     public function createProfile($profile)
     {
-        $query = "INSERT INTO profiles VALUES ('', :firstName, :lastName, :yearOfBirth, :image, :gender, :accountId)";
+        $query = "INSERT INTO profiles VALUES (null, :firstName, :lastName, :yearOfBirth, :image, :gender, :accountId)";
         $params = array(
             ":firstName" => $profile->getFirstName(),
             ":lastName" => $profile->getLastName(),

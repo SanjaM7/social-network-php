@@ -1,24 +1,21 @@
 
 <?php
-class ProfileController
+class ProfileController extends Controller 
 {
-    private $sessionHelper;
-    private $pageHelper;
     private $profileService;
     private $friendshipService;
     private $accountId;
 
     public function __construct()
     {
-        $this->sessionHelper = new SessionHelper();
+        parent::__construct();
         $this->sessionHelper->requireAuthorized();
-        $this->pageHelper = new PageHelper();
         $this->profileService = new ProfileService();
         $this->friendshipService = new FriendshipService();
         $this->accountId = $this->sessionHelper->getUserId();
     }
 
-    function GET_view()
+    public function GET_view()
     {
         $status = null;
         $frienshipErrors = $this->sessionHelper->getAndClearError();
@@ -58,7 +55,7 @@ class ProfileController
         $this->pageHelper->displayPage("profile/view.php", $params);
     }
 
-    function GET_edit()
+    public function GET_edit()
     {
         $status = null;
         $errors = $this->sessionHelper->getAndClearError();
@@ -74,7 +71,7 @@ class ProfileController
         $this->pageHelper->displayPage("profile/edit.php", $params);
     }
 
-    function POST_edit()
+    public function POST_edit()
     {
         $firstName = $_POST["firstName"];
         $lastName = $_POST["lastName"];
@@ -95,12 +92,12 @@ class ProfileController
         header("Location: /profile/view?status=$status");
     }
 
-    function GET_search()
+    public function GET_search()
     {
         header("Location: /index");
     }
 
-    function POST_search()
+    public function POST_search()
     {
         $searchName = $_POST["searchName"];
         $profiles = $this->profileService->searchProfile($searchName);

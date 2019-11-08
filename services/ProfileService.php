@@ -1,6 +1,6 @@
 <?php
 
-class ProfileService
+class ProfileService implements IProfileService
 {
     private $repository;
 

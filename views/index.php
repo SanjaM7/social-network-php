@@ -15,3 +15,5 @@
     <?php $profile = $params['profile']; ?>
     <h3> Hello <?php echo $profile->getFirstName(); ?></h3>
 <?php endif; ?>
+
+<?php
