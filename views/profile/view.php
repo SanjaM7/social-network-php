@@ -1,3 +1,13 @@
+<?php
+use SocialNetwork\Models\ProfileError;
+use SocialNetwork\Models\FriendshipState;
+use SocialNetwork\Models\FriendshipError;
+?>
+<?php
+/**
+ * @var array $params
+ */
+?>
 <?php if ($params['status'] == "addFriend-success") : ?>
     <h4 class="alert alert-dismissible alert-success">Friend request sent. </h4>
 <?php endif; ?>
@@ -22,7 +32,7 @@
             $profileError = $params['profileError'];
             if ($profileError !== null) :
                 $errorMessages = array(
-                    ProfileError::ProfileDoesNotExist => "Profile does not exist!",
+                    ProfileError::PROFILE_DOES_NOT_EXIST => "Profile does not exist!",
                 );
                 ?>
                 <h4 class="alert alert-dismissible alert-danger">
@@ -33,7 +43,7 @@
             <?php $profile = $params['profile']; ?>
             <div class="row">
                 <div class="col-lg-6">
-                    <img src="/uploads/<?php echo $profile->getImage(); ?>" style='width:200px;'><br>
+                    <img alt="profileImage" src="/uploads/<?php echo $profile->getImage(); ?>" style='width:200px;'><br>
                 </div>
                 <div class="col-lg-6">
                     <p><b>First Name:</b> <?php echo $profile->getFirstName(); ?></p>
@@ -50,37 +60,41 @@
                         <a href="/profile/edit" class="btn btn-secondary">Edit Profile</a>
                     <?php else : ?>
                         <?php $state = $params['state'] ?>
-                        <?php if ($state == FriendshipState::NotFriends) : ?>
+                        <?php if ($state == FriendshipState::NOT_FRIENDS) : ?>
                             <form action="/friend/addFriend" method="POST">
                                 <input type="hidden" name="friendProfileId" value="<?php echo $profile->getId(); ?>" />
                                 <button type="submit" name="addFriend" class="btn btn-success">ADD AS FRIEND</button>
                             </form>
                         <?php endif; ?>
-                        <?php if ($state  == FriendshipState::Friends) : ?>
+                        <?php if ($state  == FriendshipState::FRIENDS) : ?>
                             <p>You and <?php echo $profile->getFirstName(); ?> are friends</p>
                             <form action="/friend/removeFriend" method="POST">
                                 <input type="hidden" name="friendProfileId" value="<?php echo $profile->getId(); ?>" />
-                                <button type="submit" name="removeFriend" class="btn btn-danger">REMOVE FROM FRIENDS</button>
+                                <button type="submit" name="removeFriend"
+                                        class="btn btn-danger">REMOVE FROM FRIENDS</button>
                             </form>
                         <?php endif; ?>
 
-                        <?php if ($state == FriendshipState::SentFriendRequest) : ?>
+                        <?php if ($state == FriendshipState::SENT_FRIEND_REQUEST) : ?>
                             <p>Friend request sent</p>
                             <form action="/friend/withdrawFriendRequest" method="POST">
                                 <input type="hidden" name="friendProfileId" value="<?php echo $profile->getId(); ?>" />
-                                <button type="submit" name="withdrawFriendRequest" class="btn btn-secondary">WITHRAW FRIEND REQUEST</button>
+                                <button type="submit" name="withdrawFriendRequest"
+                                        class="btn btn-secondary">WITHRAW FRIEND REQUEST</button>
                             </form>
                         <?php endif; ?>
 
-                        <?php if ($state  == FriendshipState::HaveFriendRequest) : ?>
+                        <?php if ($state  == FriendshipState::HAVE_FRIEND_REQUEST) : ?>
                             <form action="/friend/acceptFriendRequest" method="POST">
                                 <input type="hidden" name="friendProfileId" value="<?php echo $profile->getId(); ?>" />
-                                <button type="submit" name="acceptFriendRequest" class="btn btn-success">ACCEPT FRIEND REQUEST</button>
+                                <button type="submit" name="acceptFriendRequest"
+                                        class="btn btn-success">ACCEPT FRIEND REQUEST</button>
                             </form>
                             <br>
                             <form action="/friend/declineFriendRequest" method="POST">
                                 <input type="hidden" name="friendProfileId" value="<?php echo $profile->getId(); ?>" />
-                                <button type="submit" name="declineFriendRequest" class="btn btn-danger">DECLINE FRIEND REQUEST</button>
+                                <button type="submit" name="declineFriendRequest"
+                                        class="btn btn-danger">DECLINE FRIEND REQUEST</button>
                             </form>
                         <?php endif; ?>
                     <?php endif; ?>
@@ -90,21 +104,18 @@
         <?php endif; ?>
     </div>
     <div class="col-lg-6">
-        <?php if (
-            $params["status"] == 'addFriend-error' ||
+        <?php if ($params["status"] == 'addFriend-error' ||
             $params["status"] == 'removeFriend-error' ||
             $params["status"] == 'withdrawFriendRequest-error' ||
             $params["status"] == 'acceptFriendRequest-error' ||
-            $params["status"] == 'declineFriendRequest-error'
-        ) : ?>
+            $params["status"] == 'declineFriendRequest-error') : ?>
             <?php $friendshipErrors = $params['friendshipErrors'];
                 $errorMessages = array(
-                    FriendshipError::Friends => "Invalid attempt already your friend!",
-                    FriendshipError::NotFriends => "Invalid attempt not your friend!",
-                    FriendshipError::SentFriendRequest => "Invalid attempt friend request sent!",
-                    FriendshipError::HaveFriendRequest => "Invalid attempt you have friend request!",
-                    FriendshipError::YourProfile => "Invalid attempt you can not add yourself as a friend ",
-                    FriendshipError::ProfileDoesNotExist => "Profile you are trying to add does not exist!",
+                    FriendshipError::FRIENDS=> "Invalid attempt already your friend!",
+                    FriendshipError::NOT_FRIENDS => "Invalid attempt not your friend!",
+                    FriendshipError::SENT_FRIEND_REQUEST => "Invalid attempt friend request sent!",
+                    FriendshipError::HAVE_FRIEND_REQUEST => "Invalid attempt you have friend request!",
+                    FriendshipError::YOUR_PROFILE=> "Invalid attempt you can not add yourself as a friend ",
                 );
 
                 ?>

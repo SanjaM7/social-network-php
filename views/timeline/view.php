@@ -1,3 +1,12 @@
+<?php
+use SocialNetwork\Models\StatusError;
+use SocialNetwork\Models\LikeError;
+?>
+<?php
+/**
+ * @var array $params
+ */
+?>
 <?php if ($params['status'] == "status-success") : ?>
     <h4 class="alert alert-dismissible alert-success">Status posted. </h4>
 <?php endif; ?>
@@ -16,7 +25,9 @@
 
         <form action="/timeline/postStatus" method="POST">
             <div class="form-group">
+                <label for="text">
                 <textarea name="text" class="form-control" placeholder="What's up?" rows="2"></textarea>
+                </label>
             </div>
             <button type="submit" name="postStatus" class="btn btn-primary">Post Status</button><br>
         </form>
@@ -25,11 +36,11 @@
         <?php if ($params["status"] == 'status-error' || $params["status"] == 'reply-error') : ?>
             <?php $statusErrors = $params["statusErrors"];
                 $errorMessages = array(
-                    StatusError::RequiredText => "Field is required!",
-                    StatusError::TextLimitExceed => "Limit is 140 chars!",
-                    StatusError::StatusDoesNotExist => "You can't reply to post that does not exist!",
-                    StatusError::CanNotReplyOnReply => "You can only reply to statuses",
-                    StatusError::NotYourFriend => "You can only reply to your own or your friend's post!"
+                    StatusError::REQUIRED_TEXT=> "Field is required!",
+                    StatusError::TEXT_LIMIT_EXCEED => "Limit is 140 chars!",
+                    StatusError::STATUS_DOES_NOT_EXIST=> "You can't reply to post that does not exist!",
+                    StatusError::CAN_NOT_REPLY_ON_REPLY=> "You can only reply to statuses",
+                    StatusError::NOT_YOUR_FRIEND => "You can only reply to your own or your friend's post!"
                 );
                 ?>
             <?php foreach ($statusErrors as $errorCode) : ?>
@@ -42,10 +53,10 @@
         <?php if ($params['status'] == 'like-error') : ?>
             <?php $likeErrors = $params["likeErrors"];
                 $errorMessages = array(
-                    LikeError::StatusDoesNotExist => "You can't like post that does not exist!",
-                    LikeError::NotYourFriend => "You can only like your own or your friend's post",
-                    LikeError::StatusAlreadyLiked => "You have already liked that post!",
-                    LikeError::StatusIsNotLiked => "You haven't liked that post!"
+                    LikeError::STATUS_DOES_NOT_EXISTS => "You can't like post that does not exist!",
+                    LikeError::NOT_YOUR_FRIEND => "You can only like your own or your friend's post",
+                    LikeError::STATUS_ALREADY_LIKED=> "You have already liked that post!",
+                    LikeError::STATUS_NOT_LIKED => "You haven't liked that post!"
                 );
                 ?>
             <?php foreach ($likeErrors as $errorCode) : ?>
@@ -68,7 +79,7 @@
         <?php endif; ?>
 
         <?php foreach ($statuses as $status) : ?>
-            <?php if ($status->parentId == NULL) : ?>
+            <?php if ($status->parentId == null) : ?>
                 <div>
                     <a href="/profile/view?profileId=<?php echo $status->profileId; ?>">
                         <?php echo $status->firstName; ?> <?php echo $status->lastName; ?>
@@ -96,16 +107,18 @@
                             <?php endif; ?>
                         </div>
                         <div class="col-lg-4 my-1">
-                            <p><?php echo $status->countOfLikes; ?> like<?php echo $status->countOfLikes != 1 ? "s" : "" ?></p>
+                            <p><?php echo $status->countOfLikes; ?> like<?php
+                                echo $status->countOfLikes != 1 ? "s" : "" ?>
+                            </p>
                         </div>
                     </div>
 
                     <?php $replies = $params['replies']; ?>
-                    <?php $hasReplies = FALSE; ?>
+                    <?php $hasReplies = false; ?>
 
                     <?php foreach ($replies as $reply) : ?>
                         <?php if ($reply->parentId == $status->id) : ?>
-                            <?php $hasReplies = TRUE; ?>
+                            <?php $hasReplies = true; ?>
                             <div class="offset-1">
                                 <a href="/profile/view?profileId=<?php echo $reply->profileId; ?>">
                                     <?php echo $reply->firstName; ?> <?php echo $reply->lastName; ?>
@@ -119,21 +132,26 @@
                                         <?php if ($reply->hasMyLike == 0) : ?>
                                             <form action="/timeline/like" method="POST">
                                                 <div class="form-group">
-                                                    <input type="hidden" name="statusId" value="<?php echo $reply->id; ?>" />
-                                                    <button type="submit" name="like" class="btn btn-link p-0">like</button>
+                                                    <input type="hidden" name="statusId"
+                                                           value="<?php echo $reply->id; ?>" />
+                                                    <button type="submit" name="like"
+                                                            class="btn btn-link p-0">like</button>
                                                 </div>
                                             </form>
                                         <?php elseif ($reply->hasMyLike == 1) : ?>
                                             <form action="/timeline/unlike" method="POST">
                                                 <div class="form-group">
-                                                    <input type="hidden" name="statusId" value="<?php echo $reply->id; ?>" />
-                                                    <button type="submit" name="like" class="btn btn-link p-0">unlike</button>
+                                                    <input type="hidden" name="statusId"
+                                                           value="<?php echo $reply->id; ?>" />
+                                                    <button type="submit" name="like"
+                                                            class="btn btn-link p-0">unlike</button>
                                                 </div>
                                             </form>
                                         <?php endif; ?>
                                     </div>
                                     <div class="col-lg-4 my-1">
-                                        <p><?php echo $reply->countOfLikes; ?> like<?php echo $reply->countOfLikes != 1 ? "s" : "" ?></p>
+                                        <p><?php echo $reply->countOfLikes; ?> like<?php
+                                            echo $reply->countOfLikes != 1 ? "s" : "" ?></p>
                                     </div>
                                 </div>
                             </div>
@@ -144,7 +162,10 @@
                     <form action="/timeline/reply" method="POST">
                         <div class="form-group <?php echo $hasReplies ? 'offset-1' : '' ?>">
                             <input type="hidden" name="parentId" value="<?php echo $status->id; ?>" />
-                            <textarea name="text" class="form-control" placeholder="Reply to this status" rows="2"></textarea>
+                            <label for="text">
+                            <textarea name="text" class="form-control" placeholder="Reply to this status"
+                                      rows="2"></textarea>
+                            </label>
                             <div class="pt-2">
                                 <button type="submit" name="postReply" class="btn btn-secondary">Reply</button>
                             </div>

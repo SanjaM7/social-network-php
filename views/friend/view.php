@@ -1,3 +1,10 @@
+<?php
+/**
+ * @var array $params
+ * @var object $friend
+ * @var object $friendRequest
+ */
+?>
 <div class="row">
     <div class="col-lg-6 my-1">
         <h3>Friends</h3>

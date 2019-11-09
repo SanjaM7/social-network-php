@@ -1,6 +1,7 @@
 <nav class="navbar navbar-expand-lg fixed-top navbar-light bg-light">
     <a class="navbar-brand title">CHATTY</a>
-    <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarColor03" aria-controls="navbarColor03" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarColor03"
+            aria-controls="navbarColor03" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -17,7 +18,9 @@
                 <a class="nav-link" href="/friend/view">Friends <span class="sr-only">(current)</span></a>
             </li>
             <form action="/profile/search" method="POST" class="form-inline my-2 my-lg-0">
-                <input type="text" name="searchName" placeholder="Enter name to search for..." class="form-control mr-sm-2">
+                <label for="">
+                <input type="text" name="searchName" placeholder="Enter name to search for..."
+                       class="form-control mr-sm-2"></label>
                 <button type="submit" name="search" class="btn btn-secondary my-2 my-sm-0">Search</button>
             </form>
             <li class="nav-item active">

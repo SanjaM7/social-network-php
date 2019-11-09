@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var array $params
+ */
+?>
 <?php if ($params['status'] == "createAccount-success") : ?>
     <h4 class="alert alert-dismissible alert-success">Your account has been created and you can now log in.</h4>
 <?php endif; ?>

@@ -1,0 +1,1 @@
+<?phpnamespace SocialNetwork\Models;class FriendshipError{    const FRIENDS = 0;    const NOT_FRIENDS = 1;    const SENT_FRIEND_REQUEST = 2;    const HAVE_FRIEND_REQUEST = 3;    const YOUR_PROFILE = 4;}

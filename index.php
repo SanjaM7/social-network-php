@@ -5,31 +5,9 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 session_start();
-require_once realpath(dirname(__FILE__) . "/database/Db.php");
-
-/** AutoLoader spl=standard php library*/
-
-//*
+require_once "AutoLoader.php";
 spl_autoload_register("myAutoLoader");
-function myAutoLoader($className)
-{
-    if (strpos($className, "Controller") !== false) {
-        $path = "controllers/";
-    } elseif (strpos($className, "I") === 0) {
-        $path = "interfaces/";
-    } elseif (strpos($className, "Service") !== false) {
-        $path = "services/";
-    } elseif (strpos($className, "Repository") !== false) {
-        $path = "repository/";
-    } elseif (strpos($className, "Helper") !== false) {
-        $path = "helpers/";
-    } else {
-        $path = "models/";
-    }
 
-    $fullPath = $path . $className . ".php";
-    require_once $fullPath;
-}
 
 $controllerName = 'index';
 $controllerAction = 'view';
@@ -54,13 +32,13 @@ if ($controllerName == 'index') {
     $controllerName = 'account';
 }
 
-$className = ucfirst($controllerName) . "Controller";
+$className = "SocialNetwork\\Controllers\\" . ucfirst($controllerName) . "Controller";
 $controller = new $className();
 
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
-    $controllerAction = 'GET_' . $controllerAction;
-} else if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $controllerAction = 'POST_' . $controllerAction;
+    $controllerAction = 'get' . ucfirst($controllerAction);
+} elseif ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $controllerAction = 'post' . ucfirst($controllerAction);
 } else {
     die('Not supported method');
 }

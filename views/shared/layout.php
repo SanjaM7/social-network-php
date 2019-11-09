@@ -1,9 +1,15 @@
+<?php
+/**
+ * @var string $viewName
+ */
+?>
 <!DOCTYPE html>
 
 <head>
     <meta charset="unf-8">
     <title>Social Network</title>
-    <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/flatly/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css"
+          href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/flatly/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/css/layout.css">
 </head>
 
@@ -19,8 +25,6 @@
     </main>
 
     <footer>
-        <?php require_once "footer.php"; ?>
+        <?php require_once "footer.html"; ?>
     </footer>
 </body>
-
-</html>
